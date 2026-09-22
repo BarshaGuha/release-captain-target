@@ -5,7 +5,10 @@ import type { CreateTodoInput, UpdateTodoInput } from '../models/todo.js';
 const todos = new Hono();
 
 todos.get('/', (c) => {
-  return c.json(db.getAll());
+  const completed = c.req.query('completed');
+  if (completed === undefined) return c.json(db.getAll());
+  const want = completed === 'true';
+  return c.json(db.getAll().filter((t) => t.completed === want));
 });
 
 todos.get('/:id', (c) => {
