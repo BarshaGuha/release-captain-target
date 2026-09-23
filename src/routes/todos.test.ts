@@ -1,7 +1,7 @@
 import { test, describe } from 'node:test';
 import assert from 'node:assert/strict';
 import { Hono } from 'hono';
-import todos from './todos.js';
+import todos from './todos.ts';
 
 // Hono apps can be exercised directly with app.request() — no server needed.
 const app = new Hono().route('/api/todos', todos);

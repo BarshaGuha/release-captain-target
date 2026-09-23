@@ -1,4 +1,4 @@
-import type { Todo } from './models/todo.js';
+import type { Todo } from './models/todo.ts';
 
 class TodoDatabase {
   private todos: Map<string, Todo>;

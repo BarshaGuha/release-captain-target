@@ -1,6 +1,6 @@
 import { Hono } from 'hono';
-import { db } from '../db.js';
-import type { CreateTodoInput, UpdateTodoInput } from '../models/todo.js';
+import { db } from '../db.ts';
+import type { CreateTodoInput, UpdateTodoInput } from '../models/todo.ts';
 
 const todos = new Hono();
 
