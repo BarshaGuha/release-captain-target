@@ -7,7 +7,7 @@ const todos = new Hono();
 todos.get('/', (c) => {
   const completed = c.req.query('completed');
   if (completed === undefined) return c.json(db.getAll());
-  const want = completed === 'true';
+  const want = completed === 'yes';
   return c.json(db.getAll().filter((t) => t.completed === want));
 });
 

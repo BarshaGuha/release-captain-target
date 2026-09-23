@@ -7,8 +7,8 @@
   "scripts": {
     "build": "tsc",
     "start": "node dist/index.js",
-    "dev": "node --watch --experimental-strip-types src/index.ts",
-    "test": "node --experimental-strip-types --test src/routes/*.test.ts"
+    "dev": "tsx watch src/index.ts",
+    "test": "tsx --test src/routes/*.test.ts"
   },
   "engines": {
     "node": ">=22.x"
@@ -19,6 +19,7 @@
   },
   "devDependencies": {
     "@types/node": "^22.0.0",
+    "tsx": "^4.23.15",
     "typescript": "^5.7.3"
   }
 }
