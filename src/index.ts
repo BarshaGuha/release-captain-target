@@ -1,6 +1,6 @@
 import { Hono } from 'hono';
 import { serve } from '@hono/node-server';
-import todos from './routes/todos.js';
+import todos from './routes/todos.ts';
 
 const app = new Hono();
 const PORT = Number(process.env.PORT) || 3000;

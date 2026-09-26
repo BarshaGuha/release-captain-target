@@ -1,25 +1,55 @@
+import { DatabaseSync } from 'node:sqlite';
 import type { Todo } from './models/todo.ts';
 
-class TodoDatabase {
-  private todos: Map<string, Todo>;
+// SQLite-backed storage (Node's built-in node:sqlite — no extra dependency).
+// Defaults to :memory: for local dev / tests; set TODO_DB_PATH to a real
+// file path in production so todos survive a restart.
+const DEFAULT_DB_PATH = process.env.TODO_DB_PATH || ':memory:';
 
-  constructor() {
-    this.todos = new Map();
-    const sample: Todo = {
-      id: crypto.randomUUID(),
-      title: 'Learn Node.js modernization',
-      completed: false,
-      createdAt: new Date(),
+interface TodoRow {
+  id: string;
+  title: string;
+  completed: number;
+  created_at: string;
+}
+
+export class TodoDatabase {
+  private db: DatabaseSync;
+
+  constructor(dbPath: string = DEFAULT_DB_PATH) {
+    this.db = new DatabaseSync(dbPath);
+    this.db.exec(`
+      CREATE TABLE IF NOT EXISTS todos (
+        id TEXT PRIMARY KEY,
+        title TEXT NOT NULL,
+        completed INTEGER NOT NULL DEFAULT 0,
+        created_at TEXT NOT NULL
+      )
+    `);
+
+    const row = this.db.prepare('SELECT COUNT(*) AS count FROM todos').get() as { count: number };
+    if (row.count === 0) {
+      this.create('Learn Node.js modernization');
+    }
+  }
+
+  private rowToTodo(row: TodoRow): Todo {
+    return {
+      id: row.id,
+      title: row.title,
+      completed: Boolean(row.completed),
+      createdAt: new Date(row.created_at),
     };
-    this.todos.set(sample.id, sample);
   }
 
   getAll(): Todo[] {
-    return Array.from(this.todos.values());
+    const rows = this.db.prepare('SELECT * FROM todos ORDER BY created_at').all() as unknown as TodoRow[];
+    return rows.map((r) => this.rowToTodo(r));
   }
 
   getById(id: string): Todo | undefined {
-    return this.todos.get(id);
+    const row = this.db.prepare('SELECT * FROM todos WHERE id = ?').get(id) as TodoRow | undefined;
+    return row ? this.rowToTodo(row) : undefined;
   }
 
   create(title: string): Todo {
@@ -29,20 +59,30 @@ class TodoDatabase {
       completed: false,
       createdAt: new Date(),
     };
-    this.todos.set(todo.id, todo);
+    this.db
+      .prepare('INSERT INTO todos (id, title, completed, created_at) VALUES (?, ?, ?, ?)')
+      .run(todo.id, todo.title, todo.completed ? 1 : 0, todo.createdAt.toISOString());
     return todo;
   }
 
   update(id: string, updates: { title?: string; completed?: boolean }): Todo | undefined {
-    const todo = this.todos.get(id);
-    if (!todo) return undefined;
-    const updated = { ...todo, ...updates };
-    this.todos.set(id, updated);
+    const existing = this.getById(id);
+    if (!existing) return undefined;
+    const updated: Todo = { ...existing, ...updates };
+    this.db
+      .prepare('UPDATE todos SET title = ?, completed = ? WHERE id = ?')
+      .run(updated.title, updated.completed ? 1 : 0, id);
     return updated;
   }
 
   delete(id: string): boolean {
-    return this.todos.delete(id);
+    const result = this.db.prepare('DELETE FROM todos WHERE id = ?').run(id);
+    return result.changes > 0;
+  }
+
+  /** Close the underlying connection — mainly useful in tests. */
+  close(): void {
+    this.db.close();
   }
 }
 

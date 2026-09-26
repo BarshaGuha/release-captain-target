@@ -1,7 +1,7 @@
 {
   "name": "express-todo-api-modern",
-  "version": "1.1.0",
-  "description": "Modern Node.js REST API for managing todos using Hono",
+  "version": "1.2.0",
+  "description": "Modern Node.js REST API for managing todos using Hono, with SQLite persistence and API-key auth on write endpoints",
   "type": "module",
   "main": "dist/index.js",
   "scripts": {
