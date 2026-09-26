@@ -34,7 +34,7 @@ todos.put('/:id', requireApiKey, async (c) => {
   return c.json(todo);
 });
 
-todos.delete('/:id', requireApiKey, (c) => {
+todos.delete('/:id', (c) => {
   const deleted = db.delete(c.req.param('id'));
   if (!deleted) return c.json({ error: 'Todo not found' }, 404);
   return new Response(null, { status: 204 });
