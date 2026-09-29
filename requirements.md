@@ -15,5 +15,6 @@ tests in `src/routes/todos.test.ts`.
 - [ ] **R8 — Test suite is real and green.** `npm test` runs an actual test suite (not a placeholder) and every test passes before release.
 - [ ] **R9 — Write endpoints require authentication (new in this release).** `POST`, `PUT`, and `DELETE` on `/api/todos` require a valid `x-api-key` header when `API_KEY` is configured; a missing or wrong key returns 401.
 - [ ] **R10 — Todos persist across a restart (new in this release).** Todo data is stored in SQLite (`TodoDatabase`, backed by `node:sqlite`), not just an in-memory array, so it survives the process restarting when `TODO_DB_PATH` points at a real file.
+- [ ] **R11 — Rate limiting on write endpoints (proposed, not yet implemented).** `POST`, `PUT`, and `DELETE` on `/api/todos` should be rate-limited per API key.
 
 **Out of scope for v1.2.0:** pagination, rate limiting, multi-user accounts. Not requirements for this release — don't flag their absence as a gap.
