@@ -1,6 +1,7 @@
+// Release Captain action check — trivial comment for PR test
 import { Hono } from 'hono';
 import { serve } from '@hono/node-server';
-import todos from './routes/todos.js';
+import todos from './routes/todos.ts';
 
 const app = new Hono();
 const PORT = Number(process.env.PORT) || 3000;
@@ -19,3 +20,4 @@ serve({ fetch: app.fetch, port: PORT }, () => {
   console.log(`Server running on port ${PORT}`);
   console.log(`Try: http://localhost:${PORT}/api/todos`);
 });
+# release captain check 2

@@ -1,0 +1,49 @@
+name: Release Captain Check
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  release-captain:
+    runs-on: ubuntu-latest
+    # pull-requests: write is required for GITHUB_TOKEN to post PR comments
+    permissions:
+      pull-requests: write
+      contents: read
+
+    steps:
+      - name: Checkout target repo
+        uses: actions/checkout@v4
+        with:
+          # fetch-depth: 0 is required so git log <base_sha>..HEAD works;
+          # shallow clones (the default) break the changelog subagent's range query.
+          fetch-depth: 0
+
+      - name: Clone release-captain orchestrator
+        run: |
+          git clone https://github.com/BarshaGuha/release-captain.git \
+            "${{ runner.temp }}/release-captain"
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install Python dependencies
+        run: |
+          pip install -r "${{ runner.temp }}/release-captain/requirements.txt"
+
+      - name: Run Release Captain and post PR comment
+        # continue-on-error: true — the comment is informational only.
+        # Merging is gated by ci.yml (npm test), not this workflow.
+        continue-on-error: true
+        env:
+          RC_REPO_PATH:    ${{ github.workspace }}
+          RC_SINCE_REF:    ${{ github.event.pull_request.base.sha }}
+          RC_REQUIREMENTS: requirements.md
+          GITHUB_TOKEN:    ${{ secrets.GITHUB_TOKEN }}
+          RC_PR_REPO:      ${{ github.repository }}
+          RC_PR_NUMBER:    ${{ github.event.pull_request.number }}
+        run: |
+          python3 "${{ runner.temp }}/release-captain/integrations/github_comment.py"
