@@ -1,3 +1,4 @@
+// Release Captain action check — trivial comment for PR test
 import { Hono } from 'hono';
 import { serve } from '@hono/node-server';
 import todos from './routes/todos.ts';
